@@ -1,0 +1,31 @@
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: regtrace
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-regtrace}
+      POSTGRES_DB: regtrace
+    volumes: [pgdata:/var/lib/postgresql/data]
+  neo4j:
+    image: neo4j:5
+    environment:
+      NEO4J_AUTH: neo4j/${NEO4J_PASSWORD:-regtrace-pass}
+    ports: ["7474:7474", "7687:7687"]
+    volumes: [neo4jdata:/data]
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgresql://regtrace:${POSTGRES_PASSWORD:-regtrace}@postgres:5432/regtrace
+      NEO4J_URI: bolt://neo4j:7687
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: ${NEO4J_PASSWORD:-regtrace-pass}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY}
+    depends_on: [postgres, neo4j]
+    ports: ["8000:8000"]
+  web:
+    build: ./web
+    depends_on: [api]
+    ports: ["8080:80"]
+volumes:
+  pgdata:
+  neo4jdata:

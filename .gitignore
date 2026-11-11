@@ -1,0 +1,7 @@
+__pycache__/
+*.db
+.env
+web/node_modules/
+web/dist/
+eval/results.json
+.pytest_cache/
